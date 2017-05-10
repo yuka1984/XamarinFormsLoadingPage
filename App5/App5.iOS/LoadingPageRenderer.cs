@@ -6,6 +6,7 @@ using UIKit;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Linq;
 
 [assembly: ExportRenderer(typeof(ContentPage), typeof(LoadingPageRenderer))]
 namespace App5.iOS
@@ -28,27 +29,75 @@ namespace App5.iOS
 			{
 				_indicator = new UIActivityIndicatorView(UIActivityIndicatorViewStyle.Gray);
 				View.AddSubview(_indicator);
-				_indicator.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor).Active = true;
-				_indicator.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor, -100).Active = true;
-				_indicator.TranslatesAutoresizingMaskIntoConstraints = false;
-				_indicator.UserInteractionEnabled = false;
+				Indicatorconstraint(_indicator);
+
 			}
 			Element.PropertyChanged += OnHandlePropertyChanged;
+			UpdateIsBusy();
 		}
+
+		protected virtual UIActivityIndicatorView CreateIndicator(UIView view)
+		{
+			return new UIActivityIndicatorView(UIActivityIndicatorViewStyle.Gray);
+		}
+
+		protected virtual void Indicatorconstraint(UIActivityIndicatorView indicatorView)
+		{
+			indicatorView.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor).Active = true;
+			indicatorView.TopAnchor.ConstraintEqualTo(View.TopAnchor, 30).Active = true;
+			indicatorView.TranslatesAutoresizingMaskIntoConstraints = false;
+			indicatorView.UserInteractionEnabled = false;
+		}
+
+		public override void WillAnimateRotation(UIInterfaceOrientation toInterfaceOrientation, double duration)
+		{
+			base.WillAnimateRotation(toInterfaceOrientation, duration);
+			UpdateIsBusy();
+		}
+
+		private void UpdateIsBusy()
+		{
+			var isbusy = (Element as Page).IsBusy;
+			if (!isbusy)
+				return;
+			
+			var view = View.Subviews.First(x => x != _indicator);
+			var distance = view.Frame.Width > view.Frame.Height ? view.Frame.Width : view.Frame.Height;
+			view.Frame = new CoreGraphics.CGRect(view.Frame.X + distance, view.Frame.Y, view.Frame.Width, view.Frame.Height);
+			view.Alpha = 0;
+		}
+
 
 		void OnHandlePropertyChanged(object sender, PropertyChangedEventArgs e)
 		{
 			if (e.PropertyName == "IsBusy")
 			{
-				if ((Element as Page).IsBusy)
-				{
-					_indicator?.StartAnimating();
+				var isbusy = (Element as Page).IsBusy;
+				var view = View.Subviews.First(x => x != _indicator);
+				var distance = view.Frame.Width > view.Frame.Height ? view.Frame.Width : view.Frame.Height;
+				if (isbusy)
+				{					
+					UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn
+					               , () =>
+								   {
+									   view.Frame = new CoreGraphics.CGRect(view.Frame.X + distance, view.Frame.Y, view.Frame.Width, view.Frame.Height);
+									   view.Alpha = 0;
+								   }
+					               , ()=> _indicator?.StartAnimating());
 				}
 				else
 				{
 					_indicator?.StopAnimating();
+					UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut
+					               , () =>
+								   {
+									   view.Frame = new CoreGraphics.CGRect(view.Frame.X - distance, view.Frame.Y, view.Frame.Width, view.Frame.Height);
+									   view.Alpha = 1;
+								   }
+					               , null);
+					
 				}
 			}
 		}
-}
+	}
 }

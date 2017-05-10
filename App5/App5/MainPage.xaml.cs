@@ -17,7 +17,12 @@ namespace App5
 
 	    private void ButtonOnClicked(object sender, EventArgs eventArgs)
 	    {
-	        IsBusy = !IsBusy;
+	        IsBusy = true;
+			Task.Delay(2500).ContinueWith(task => {
+				Xamarin.Forms.Device.BeginInvokeOnMainThread(() => {
+					this.IsBusy = false;
+				});
+			});
 	    }
 	}
 }
