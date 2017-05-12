@@ -80,35 +80,27 @@ namespace App5.Droid
                 var page = (Page) sender;
                 _progress.Visibility = page.IsBusy ? ViewStates.Visible : ViewStates.Invisible;
                 var view = GetChildAt(1);
-	            if (view != _progress)
-	            {
-	                if (animator.IsStarted)
-	                    animator.Pause();
-	                if (page.IsBusy)
-	                {
-	                    _progress.Alpha = 0;
-                        if(!animator.IsPaused)
-                        {
-                            animator.StartDelay = 1000; 
-                        }
+                if (view != _progress)
+                {
+                    if (animator.IsStarted)
+                        animator.Pause();
+                    if (page.IsBusy)
+                    {
+                        _progress.Alpha = 0;
+                        if (!animator.IsPaused)
+                            animator.StartDelay = 1000;
                         else
-                        {
                             animator.Resume();
-                        }
                         animator.Start();
-
                     }
-	                else
-	                {
-	                    animator.StartDelay = 0;
-                        if(animator.IsPaused)
-                        {
+                    else
+                    {
+                        animator.StartDelay = 0;
+                        if (animator.IsPaused)
                             animator.Resume();
-                        }
-	                    animator.Reverse();
-	                }
-	            }
-
+                        animator.Reverse();
+                    }
+                }
             }
         }
     }
