@@ -22,7 +22,7 @@ namespace App5.Droid
 
             if (_progress == null)
             {
-                _progress = new AProgressBar(Context, null, Android.Resource.Attribute.ProgressBarStyleSmall)
+                _progress = new AProgressBar(Context, null, Android.Resource.Attribute.ProgressBarStyleLarge)
                 {
                     Indeterminate = true
                 };
@@ -79,27 +79,36 @@ namespace App5.Droid
             {
                 var page = (Page) sender;
                 _progress.Visibility = page.IsBusy ? ViewStates.Visible : ViewStates.Invisible;
-
-                for (var i = 0; i < ChildCount; ++i)
-                {
-                    var view = GetChildAt(i);
-                    if (view != _progress)
-                    {
-                        if (animator.IsStarted)
-                            animator.Pause();
-                        if (page.IsBusy)
+                var view = GetChildAt(1);
+	            if (view != _progress)
+	            {
+	                if (animator.IsStarted)
+	                    animator.Pause();
+	                if (page.IsBusy)
+	                {
+	                    _progress.Alpha = 0;
+                        if(!animator.IsPaused)
                         {
-                            _progress.Alpha = 0;
-                            animator.StartDelay = 1000;
-                            animator.Start();
+                            animator.StartDelay = 1000; 
                         }
                         else
                         {
-                            animator.StartDelay = 0;
-                            animator.Reverse();
+                            animator.Resume();
                         }
+                        animator.Start();
+
                     }
-                }
+	                else
+	                {
+	                    animator.StartDelay = 0;
+                        if(animator.IsPaused)
+                        {
+                            animator.Resume();
+                        }
+	                    animator.Reverse();
+	                }
+	            }
+
             }
         }
     }
