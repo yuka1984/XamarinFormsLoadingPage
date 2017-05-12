@@ -44,7 +44,7 @@ namespace App5.iOS
 		protected virtual void Indicatorconstraint(UIActivityIndicatorView indicatorView)
 		{
 			indicatorView.CenterXAnchor.ConstraintEqualTo(View.CenterXAnchor).Active = true;
-			indicatorView.TopAnchor.ConstraintEqualTo(View.TopAnchor, 30).Active = true;
+			indicatorView.CenterYAnchor.ConstraintEqualTo(View.CenterYAnchor, - 30).Active = true;
 			indicatorView.TranslatesAutoresizingMaskIntoConstraints = false;
 			indicatorView.UserInteractionEnabled = false;
 		}
@@ -77,7 +77,7 @@ namespace App5.iOS
 				var distance = view.Frame.Width > view.Frame.Height ? view.Frame.Width : view.Frame.Height;
 				if (isbusy)
 				{					
-					UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseIn
+					UIView.Animate(0.3, 1, UIViewAnimationOptions.CurveEaseIn
 					               , () =>
 								   {
 									   view.Frame = new CoreGraphics.CGRect(view.Frame.X + distance, view.Frame.Y, view.Frame.Width, view.Frame.Height);
@@ -88,7 +88,7 @@ namespace App5.iOS
 				else
 				{
 					_indicator?.StopAnimating();
-					UIView.Animate(0.2, 0, UIViewAnimationOptions.CurveEaseOut
+					UIView.Animate(0.3, 0, UIViewAnimationOptions.CurveEaseOut
 					               , () =>
 								   {
 									   view.Frame = new CoreGraphics.CGRect(view.Frame.X - distance, view.Frame.Y, view.Frame.Width, view.Frame.Height);

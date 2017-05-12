@@ -5,6 +5,8 @@ using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using AProgressBar = Android.Widget.ProgressBar;
 using Android.Animation;
+using Android.Views.Animations;
+using System.Diagnostics;
 
 [assembly: ExportRenderer(typeof(ContentPage), typeof(LoadingPageRenderer))]
 
@@ -27,10 +29,30 @@ namespace App5.Droid
                 AddView(_progress);
                 _progress.Visibility = ViewStates.Invisible;
             }
+
+            if(animator == null){
+				animator = ValueAnimator.OfFloat(0f, 1f);
+				animator.SetDuration(300);
+				animator.Update += (s, a) =>
+				{
+                    var view = GetChildAt(1);
+					var width = view.Width;
+					var height = view.Height;
+					var c = (float)a.Animation.AnimatedValue;
+					view.Left = (int)(width * c);
+					view.Right = view.Left + width;
+
+					_progress.Alpha = c;
+					System.Diagnostics.Debug.WriteLine(c);
+					;
+				};
+            }
         }
 
 		protected override void OnLayout(bool changed, int l, int t, int r, int b)
 		{
+            if (!changed)
+                return;
 			base.OnLayout(changed, l, t, r, b);
 			float z = 0;
 			for (var i = 0; i < ChildCount; ++i)
@@ -46,26 +68,12 @@ namespace App5.Droid
 
 			var hoffset = (b - t) / 10;
 
-			_progress.Layout(l + woffset, t + hoffset, r - woffset, t + hoffset + 100);
+			_progress.Layout(l + woffset, t + hoffset, r - woffset, t + hoffset * 4);
 
-			var page = Element;
-			if (page.IsBusy)
-			{
-				for (var i = 0; i < ChildCount; ++i)
-				{
-					var view = GetChildAt(i);
-					if (view != _progress)
-					{
-
-						width = view.Width;
-						view.Left = view.Left + width;
-						view.Right = view.Right + width;
-					}
-				}
-			}
                 
         }
 
+        private ValueAnimator animator;
         protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnElementPropertyChanged(sender, e);
@@ -79,29 +87,20 @@ namespace App5.Droid
                     var view = GetChildAt(i);
 					if (view != _progress)
 					{
+                        if(animator.IsStarted == true){
+                            animator.Pause();
+                        }
 						if (page.IsBusy)
 						{
-							var anim = ValueAnimator.OfInt(0, view.Width);
-							anim.SetDuration(200);
-							anim.Update += (s, a) => {
-								var width = view.Width;
-								var c = (int)a.Animation.AnimatedValue;
-								view.Left = c;
-								view.Right =  c + width;
-							};
-							anim.Start();
+                            _progress.Alpha = 0;
+                            animator.StartDelay = 1000;
+                            animator.Start();
+						    
 						}
 						else
 						{
-							var anim = ValueAnimator.OfInt(view.Width, 0);
-							anim.SetDuration(200);
-							anim.Update += (s, a) => {
-								var width = view.Width;
-								var c = (int)a.Animation.AnimatedValue;
-								view.Left = c;
-								view.Right =  c + width;
-							};
-							anim.Start();
+                            animator.StartDelay = 0;
+                            animator.Reverse();
 						}
 					}
                 }
