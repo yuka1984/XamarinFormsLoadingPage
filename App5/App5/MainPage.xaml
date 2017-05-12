@@ -1,13 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:App5"
              x:Class="App5.MainPage">
 <StackLayout>
-    <Button Text="Busy" x:Name="Button"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-
+    <Button Text="Busy" x:Name="Button" />
+    <Label Text="Push Busy Button." HorizontalTextAlignment="Center" />
+	<Label Text="IsBusy to True" HorizontalTextAlignment="Center"/>
+		<Label Text="IsBusy to False After 2500msec" HorizontalTextAlignment="Center"/>
+        <Label x:Name="Status"  HorizontalTextAlignment="Center" />
     </StackLayout>
 
 

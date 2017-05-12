@@ -4,6 +4,9 @@ using App5.Droid;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.Android;
 using AProgressBar = Android.Widget.ProgressBar;
+using Android.Animation;
+using Android.Views.Animations;
+using System.Diagnostics;
 
 [assembly: ExportRenderer(typeof(ContentPage), typeof(LoadingPageRenderer))]
 
@@ -26,28 +29,51 @@ namespace App5.Droid
                 AddView(_progress);
                 _progress.Visibility = ViewStates.Invisible;
             }
-        }
 
-        protected override void OnLayout(bool changed, int l, int t, int r, int b)
-        {
-            base.OnLayout(changed, l, t, r, b);
-            float z = 0;
-            for (var i = 0; i < ChildCount; ++i)
-            {
-                var view = GetChildAt(i);
-                if (view != _progress && z < view.GetZ())
-                    z = view.GetZ();
+            if(animator == null){
+				animator = ValueAnimator.OfFloat(0f, 1f);
+				animator.SetDuration(300);
+				animator.Update += (s, a) =>
+				{
+                    var view = GetChildAt(1);
+					var width = view.Width;
+					var height = view.Height;
+					var c = (float)a.Animation.AnimatedValue;
+					view.Left = (int)(width * c);
+					view.Right = view.Left + width;
+
+					_progress.Alpha = c;
+					System.Diagnostics.Debug.WriteLine(c);
+					;
+				};
             }
-
-            _progress.SetZ(z + 1);
-            var width = r - l;
-            var woffset = (width - 100) / 2;
-
-            var hoffset = (b - t) / 10;
-
-            _progress.Layout(l + woffset, t + hoffset, r - woffset, t + hoffset + 100);
         }
 
+		protected override void OnLayout(bool changed, int l, int t, int r, int b)
+		{
+            if (!changed)
+                return;
+			base.OnLayout(changed, l, t, r, b);
+			float z = 0;
+			for (var i = 0; i < ChildCount; ++i)
+			{
+				var view = GetChildAt(i);
+				if (view != _progress && z < view.GetZ())
+					z = view.GetZ();
+			}
+
+			_progress.SetZ(z + 1);
+			var width = r - l;
+			var woffset = (width - 100) / 2;
+
+			var hoffset = (b - t) / 10;
+
+			_progress.Layout(l + woffset, t + hoffset, r - woffset, t + hoffset * 4);
+
+                
+        }
+
+        private ValueAnimator animator;
         protected override void OnElementPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             base.OnElementPropertyChanged(sender, e);
@@ -59,8 +85,24 @@ namespace App5.Droid
                 for (var i = 0; i < ChildCount; ++i)
                 {
                     var view = GetChildAt(i);
-                    if (view != _progress)
-                        view.Alpha = page.IsBusy ? 0.3f : 1;
+					if (view != _progress)
+					{
+                        if(animator.IsStarted == true){
+                            animator.Pause();
+                        }
+						if (page.IsBusy)
+						{
+                            _progress.Alpha = 0;
+                            animator.StartDelay = 1000;
+                            animator.Start();
+						    
+						}
+						else
+						{
+                            animator.StartDelay = 0;
+                            animator.Reverse();
+						}
+					}
                 }
             }
         }

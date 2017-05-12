@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using System.Threading;
 
 namespace App5
 {
@@ -13,11 +14,38 @@ namespace App5
 		{
 			InitializeComponent();
             Button.Clicked += ButtonOnClicked;
+            PropertyChanged += (sender, e) => {
+
+                if(e.PropertyName == "IsBusy"){
+                    Status.Text = IsBusy.ToString();
+                }
+            };
 		}
 
+        private CancellationTokenSource cancellTokenSource;
 	    private void ButtonOnClicked(object sender, EventArgs eventArgs)
 	    {
-	        IsBusy = !IsBusy;
+            if(IsBusy)
+            {
+                IsBusy = false;
+                cancellTokenSource?.Cancel();
+            }
+            else
+            {
+                cancellTokenSource = new CancellationTokenSource();
+				IsBusy = true;
+				Task.Delay(2500, cancellTokenSource.Token).ContinueWith(task =>
+				{
+                    if(task.IsCompleted)
+                    {
+                        Xamarin.Forms.Device.BeginInvokeOnMainThread(() =>
+	                    {
+	                        this.IsBusy = false;
+	                    });
+                    }
+				});
+			}
+
 	    }
 	}
 }
