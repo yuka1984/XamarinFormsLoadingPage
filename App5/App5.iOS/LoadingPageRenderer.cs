@@ -1,4 +1,4 @@
-﻿﻿using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq;
 using App5.iOS;
 using CoreGraphics;
@@ -74,6 +74,7 @@ namespace App5.iOS
                 var isbusy = (Element as Page).IsBusy;
                 var view = View.Subviews.First(x => x != _indicator);
                 var distance = view.Frame.Width > view.Frame.Height ? view.Frame.Width : view.Frame.Height;
+                view.Layer.RemoveAllAnimations();
                 if (isbusy)
                 {
                     _indicator.Alpha = 0;
@@ -86,14 +87,10 @@ namespace App5.iOS
                             view.Alpha = 0;
                             _indicator.Alpha = 1;
                         }
-                                   , () => {
-                        if ((Element as Page).IsBusy){
-                            
-                        }});
+                        , null);
                 }
                 else
                 {                    
-                    view.Layer.RemoveAllAnimations();
                     UIView.Animate(0.3, 0, UIViewAnimationOptions.CurveEaseOut
                         , () =>
                         {
@@ -102,7 +99,7 @@ namespace App5.iOS
                             view.Alpha = 1;
                             _indicator.Alpha = 0;
                         }
-                                   , ()=>{_indicator.StopAnimating(); });
+                        , () => { _indicator.StopAnimating(); });
                 }
             }
         }
