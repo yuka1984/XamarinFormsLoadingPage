@@ -76,26 +76,33 @@ namespace App5.iOS
                 var distance = view.Frame.Width > view.Frame.Height ? view.Frame.Width : view.Frame.Height;
                 if (isbusy)
                 {
+                    _indicator.Alpha = 0;
+                    _indicator.StartAnimating();
                     UIView.Animate(0.3, 1, UIViewAnimationOptions.CurveEaseIn
                         , () =>
                         {
-                            view.Frame = new CGRect(view.Frame.X + distance, view.Frame.Y,
+                            view.Frame = new CGRect(View.Frame.X + distance, View.Frame.Y,
                                 view.Frame.Width, view.Frame.Height);
                             view.Alpha = 0;
+                            _indicator.Alpha = 1;
                         }
-                        , () => _indicator?.StartAnimating());
+                                   , () => {
+                        if ((Element as Page).IsBusy){
+                            
+                        }});
                 }
                 else
-                {
-                    _indicator?.StopAnimating();
+                {                    
+                    view.Layer.RemoveAllAnimations();
                     UIView.Animate(0.3, 0, UIViewAnimationOptions.CurveEaseOut
                         , () =>
                         {
-                            view.Frame = new CGRect(view.Frame.X - distance, view.Frame.Y,
+                            view.Frame = new CGRect(View.Frame.X, View.Frame.Y,
                                 view.Frame.Width, view.Frame.Height);
                             view.Alpha = 1;
+                            _indicator.Alpha = 0;
                         }
-                        , null);
+                                   , ()=>{_indicator.StopAnimating(); });
                 }
             }
         }
