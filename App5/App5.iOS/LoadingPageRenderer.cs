@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+﻿﻿using System.ComponentModel;
 using System.Linq;
 using App5.iOS;
 using CoreGraphics;
@@ -76,8 +76,6 @@ namespace App5.iOS
                 var distance = view.Frame.Width > view.Frame.Height ? view.Frame.Width : view.Frame.Height;
                 if (isbusy)
                 {
-                    UIView.Transition(view, _indicator, 0.3, UIViewAnimationOptions.CurveEaseIn, () => _indicator?.StartAnimating());
-                    /*
                     UIView.Animate(0.3, 1, UIViewAnimationOptions.CurveEaseIn
                         , () =>
                         {
@@ -86,13 +84,10 @@ namespace App5.iOS
                             view.Alpha = 0;
                         }
                         , () => _indicator?.StartAnimating());
-                        */
                 }
                 else
                 {
                     _indicator?.StopAnimating();
-                    UIView.Transition(_indicator, view, 0.3, UIViewAnimationOptions.ShowHideTransitionViews, ()=> _indicator?.StartAnimating());
-                    /*
                     UIView.Animate(0.3, 0, UIViewAnimationOptions.CurveEaseOut
                         , () =>
                         {
@@ -101,7 +96,6 @@ namespace App5.iOS
                             view.Alpha = 1;
                         }
                         , null);
-                        */
                 }
             }
         }
